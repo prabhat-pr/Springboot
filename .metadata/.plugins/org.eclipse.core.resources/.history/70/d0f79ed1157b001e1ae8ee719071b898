@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Change Password</title>
+	<!-- Include Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Include Font Awesome CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+	<link href="/css/changePassword.css" rel="stylesheet">
+</head>
+
+<body>
+	<div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <h2 class="mb-4 text-center">Change Password</h2>
+
+                <form th:action="@{/change-password}" method="post">
+                    <!-- Form fields go here -->
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                        <a th:href="@{/dashboard/profile/edit}" class="btn btn-secondary"><i class="fas fa-arrow-circle-left me-2"></i> Go Back</a>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <div th:if="${successMessage}" class="alert alert-success d-inline-block" role="alert">
+                            <p class="mb-0" th:text="${successMessage}"></p>
+                        </div>
+
+                        <div th:if="${errorMessage}" class="alert alert-danger d-inline-block" role="alert">
+                            <p class="mb-0" th:text="${errorMessage}"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+	<script src="/js/changePassword.js"></script>
+</body>
+</html>

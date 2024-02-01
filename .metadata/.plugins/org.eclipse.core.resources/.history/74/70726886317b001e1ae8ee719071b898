@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Booking</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+   <link rel="stylesheet" type="text/css" th:href="@{/css/book.css}" />
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg">
+		<div class="container">
+			<a class="navbar-brand" href="/dashboard">Reservation Dashboard</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+				data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+							aria-expanded="false">
+							<i class="fa-solid fa-user"></i> My Account
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" th:href="@{/dashboard/profile}"><i
+										class="fas fa-user-circle"></i> Profile</a></li>
+							<li><a class="dropdown-item" th:href="@{/feedback}"><i class="fas fa-comment"></i>
+									Feedback</a></li>
+							<div class="dropdown-divider"></div>
+							<li><a class="dropdown-item" th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i>
+									Logout</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+    <!-- Create HTML registration form -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                 <!--Success message -->
+                <div th:if="${param.success}" class="alert alert-success">
+    Your booking is done! Go to the My Bookings section to check your booking on the Dashboard.
+</div>
+
+                <h1 class="display-4 text-center my-4">Booking</h1>
+
+                <form th:action="@{/dashboard/booking}" method="post" th:object="${record}" onsubmit="return validateForm();">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="from">From</label>
+                                <input id="from" class="form-control" th:field="*{fromDestination}" required readonly="readonly" autofocus="autofocus" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="to">To</label>
+                                <input id="to" class="form-control" th:field="*{toDestination}" required readonly="readonly" autofocus="autofocus" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="filterDate">Date</label>
+                                <input type="date" th:field="*{filterDate}" id="filterDate" required readonly="readonly" autofocus="autofocus" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="price">Price</label>
+                                <input id="price" class="form-control" th:field="*{price}" required readonly="readonly" autofocus="autofocus" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="noOfPersons">No of Persons</label>
+                                <input id="noOfPersons" class="form-control" th:field="*{noOfPersons}" required autofocus="autofocus" onchange="updateFiled();" />
+                                <span id="noOfPersonsError" style="color: red;"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="totalCalculated">Total Amount to be Paid</label>
+                                <input id="totalCalculated" class="form-control" th:field="*{totalCalculated}" required readonly="readonly" autofocus="autofocus" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="busName">Bus Name</label>
+                                <input id="busName" class="form-control" th:field="*{busName}" required readonly="readonly" autofocus="autofocus" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label" for="time">Departure Time</label>
+                                <input id="time" class="form-control" th:field="*{time}" required readonly="readonly" autofocus="autofocus" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Pay</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="form-group">
+                    <span><a href="/" th:href="@{/dashboard/find-bus}">Go Back</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script th:src="@{/js/book.js}"></script>
+</body>
+</html>

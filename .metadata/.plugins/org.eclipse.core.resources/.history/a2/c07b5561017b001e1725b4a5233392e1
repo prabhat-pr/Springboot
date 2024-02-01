@@ -1,0 +1,5 @@
+package com.system.toursandtravelmanagement.service;
+
+public class DefaultUserServices {
+
+}

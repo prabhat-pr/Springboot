@@ -1,0 +1,71 @@
+package com.system.toursandtravelmanagement.controller;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.system.toursandtravelmanagement.DTO.UserRegisteredDTO;
+import com.system.toursandtravelmanagement.model.User;
+import com.system.toursandtravelmanagement.service.DefaultUserService;
+
+@Controller
+public class RegistrationController {
+
+	private DefaultUserService userService;
+
+	public RegistrationController(DefaultUserService userService) {
+		super();
+		this.userService = userService;
+	}
+
+	@ModelAttribute("user")
+	public UserRegisteredDTO userRegistrationDto() {
+		return new UserRegisteredDTO();
+	}
+
+	@GetMapping("/registration")
+	public String showRegistrationForm() {
+		return "user/register";
+	}
+
+	@PostMapping("/registration")
+	public String registerUserAccount(@ModelAttribute("user") UserRegisteredDTO registrationDto, BindingResult result,
+			RedirectAttributes redirectAttributes) {
+		// Check if the passwords match
+		if (!registrationDto.getPassword().equals(registrationDto.getConfirmPassword())) {
+			result.rejectValue("confirmPassword", null, "Passwords do not match");
+		}
+
+		// Perform server-side email validation using regular expression
+		String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+		Pattern pattern = Pattern.compile(emailRegex);
+		Matcher matcher = pattern.matcher(registrationDto.getEmail_id());
+
+		if (!matcher.matches()) {
+			result.rejectValue("email_id", null, "Invalid email address");
+		} else {
+			// Check if the email already exists in the database
+			User existingUser = userService.getUserByEmail(registrationDto.getEmail_id());
+			if (existingUser != null) {
+				result.rejectValue("email_id", null, "There is already an account registered with this email address");
+			}
+		}
+
+		if (result.hasErrors()) {
+			// Validation failed; return to the registration form with error messages
+			return "user/register";
+		}
+
+		// If validation succeeds, save the user and redirect to the registration page
+		// with a success message
+		userService.save(registrationDto);
+		redirectAttributes.addFlashAttribute("successMessage", "You've successfully registered. Please log in.");
+		return "redirect:/registration";
+	}
+}

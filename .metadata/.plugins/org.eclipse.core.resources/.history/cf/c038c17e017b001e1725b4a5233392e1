@@ -1,0 +1,33 @@
+package com.system.toursandtravelmanagement.service;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+//...
+
+public class DefaultUserService implements UserDetailsService {
+
+ @Autowired
+ private UserRepository userRepository;
+
+ @Autowired
+ private PasswordEncoder passwordEncoder;
+
+ // ...
+
+ @Override
+ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+     User user = userRepository.findByEmail(username);
+     if (user == null) {
+         throw new UsernameNotFoundException("User not found with email: " + username);
+     }
+
+     // Compare encoded password
+     if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
+         throw new BadCredentialsException("Incorrect password");
+     }
+
+     // Create UserDetails object and return
+     // ...
+ }
+}
+

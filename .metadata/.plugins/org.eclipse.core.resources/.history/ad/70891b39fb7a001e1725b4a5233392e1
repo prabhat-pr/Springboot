@@ -1,0 +1,61 @@
+package com.system.toursandtravelmanagement.Controller;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.system.toursandtravelmanagement.DTO.UserLoginDTO;
+
+import com.system.toursandtravelmanagement.service.DefaultUserService;
+
+@Controller
+public class LoginController {
+    @Autowired
+    private DefaultUserService userService;
+
+    @ModelAttribute("user")
+    public UserLoginDTO userLoginDTO() {
+        return new UserLoginDTO();
+    }
+
+    @GetMapping("/login")
+    public String login(@RequestParam(value = "error", defaultValue = "false") boolean loginError, Model model) {
+        if (loginError) {
+            model.addAttribute("error", "Invalid Email or Password. Please try again.");
+        }
+        return "common/login";
+    }
+
+    @PostMapping("/login")
+    public String loginUser(@ModelAttribute("user") @Valid UserLoginDTO userLoginDTO, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            // If there are validation errors, return to the login page with error messages
+            return "common/login";
+        }
+
+        // Perform authentication logic here
+        UserDetails userDetails = userService.loadUserByUsername(userLoginDTO.getUsername());
+
+        if (userDetails == null) {
+            model.addAttribute("error", "Invalid Email or Password. Please try again.");
+            return "common/login";
+        }
+
+        // Validate the password
+        if (!userDetails.getPassword().equals(userLoginDTO.getPassword())) {
+            model.addAttribute("error", "Invalid Email or Password. Please try again.");
+            return "common/login";
+        }
+
+        // If authentication is successful, redirect to a success page or perform further actions
+        return "redirect:/success";
+    }
+}

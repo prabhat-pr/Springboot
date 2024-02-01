@@ -1,0 +1,46 @@
+package com.system.toursandtravelmanagement.Controller;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.system.toursandtravelmanagement.DTO.UserLoginDTO;
+
+import com.system.toursandtravelmanagement.service.DefaultUserService;
+
+@Controller
+public class LoginController {
+    @Autowired
+    private DefaultUserService userService;
+
+    @GetMapping("/login")
+    public String login(@RequestParam(value = "error", defaultValue = "false") boolean loginError, Model model) {
+        if (loginError) {
+            model.addAttribute("error", "Invalid Email or Password. Please try again.");
+        }
+        model.addAttribute("user", new UserLoginDTO()); // add an empty UserLoginDTO object to the model
+        return "common/login";
+    }
+
+    @PostMapping("/login")
+    public String loginUser(@Valid @ModelAttribute("user") UserLoginDTO userLoginDTO, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "common/login"; // If there are validation errors, return to the login page
+        }
+
+        // Your login logic here, loadUserByUsername(userLoginDTO.getUsername())...
+        public void  loginUser1(@ModelAttribute("user") 
+       	UserLoginDTO userLoginDTO) {
+       	 userService.loadUserByUsername(userLoginDTO.getUsername());
+       	}
+        // If login is successful, redirect to a success page
+        return "redirect:/success";
+    }
+}

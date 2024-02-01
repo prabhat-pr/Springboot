@@ -1,0 +1,56 @@
+package com.system.toursandtravelmanagement.Controller;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.system.toursandtravelmanagement.DTO.UserLoginDTO;
+
+import com.system.toursandtravelmanagement.service.DefaultUserService;
+
+@Controller
+public class LoginController {
+    @Autowired
+    private DefaultUserService userService;
+
+    @ModelAttribute("user")
+    public UserLoginDTO userLoginDTO() {
+        return new UserLoginDTO();
+    }
+
+    @GetMapping("/login")
+	public String login() {
+		return "common/login";
+	}
+    @PostMapping("/login")
+    public String loginUser(@ModelAttribute("user") @Valid UserLoginDTO userLoginDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "common/login";
+        }
+
+        try {
+            // Attempt to load user by username (email)
+            userService.loadUserByUsername(userLoginDTO.getUsername());
+
+            // If successful, handle login logic here
+            return "redirect:/home"; // Redirect to home page after successful login
+        } catch (UsernameNotFoundException e) {
+            // Handle case where email is not registered
+            bindingResult.rejectValue("username", "error.user", "Email not registered");
+            return "common/login";
+        } catch (BadCredentialsException e) {
+            // Handle case where password is incorrect
+            bindingResult.rejectValue("password", "error.user", "Incorrect password");
+            return "common/login";
+        }
+    }
+}

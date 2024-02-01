@@ -1,0 +1,71 @@
+@charset "ISO-8859-1";
+
+body {
+	background-image: url('/images/login.jpeg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.navbar {
+	background-color: transparent !important;
+	/* Set the background color to transparent */
+	border: none;
+	/* Remove the border */
+	box-shadow: none;
+	/* Remove any box shadow */
+}
+
+/* Style the navbar links */
+.navbar-dark .navbar-nav .nav-link {
+	color: skyblue;
+	/* Set the text color to white */
+}
+
+/* Style the navbar brand text */
+.navbar-dark .navbar-brand {
+	color: #fff;
+	/* Set the text color to white */
+}
+
+/* Style the form container */
+.form-container {
+	background-color: rgba(248, 248, 255, 0.9);
+	padding: 20px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	margin-top: 80px;
+}
+
+.card-title {
+	text-align: center;
+	margin-bottom: 30px;
+	font-size: 36px;
+}
+
+/* Style the form elements */
+.form-group label {
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+
+/* Style the submit button */
+.btn {
+	background-color: #007bff;
+	color: white;
+	transition: background-color 0.3s ease;
+	height: 10p;
+}
+
+.btn:hover {
+	background-color: orange;
+}
+
+.error-message {
+	width: auto;
+	height: 50px;
+	color: red;
+	margin-bottom: 20px;
+}

@@ -1,0 +1,171 @@
+package com.system.toursandtravelmanagement.Controller;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.system.toursandtravelmanagement.DTO.BookingsDTO;
+import com.system.toursandtravelmanagement.DTO.ReservationDTO;
+import com.system.toursandtravelmanagement.helper.ObjectCreationHelper;
+import com.system.toursandtravelmanagement.model.Bookings;
+import com.system.toursandtravelmanagement.model.BusData;
+import com.system.toursandtravelmanagement.model.User;
+import com.system.toursandtravelmanagement.repository.BookingsRepository;
+import com.system.toursandtravelmanagement.repository.BusDataRepository;
+import com.system.toursandtravelmanagement.repository.UserRepository;
+import com.system.toursandtravelmanagement.service.DefaultUserService;
+
+@Controller
+@RequestMapping(value = "/dashboard")
+public class DashboardController {
+	@Autowired
+	 private DefaultUserService userService;
+
+	    public DashboardController(DefaultUserService userService) {
+	        super();
+	        this.userService = userService;
+	    }
+	
+	@Autowired
+	BookingsRepository bookingsRepository;
+	
+	@Autowired
+	UserRepository userRepository;
+	
+	@Autowired
+	BusDataRepository busDataRepository;
+	
+	@ModelAttribute("reservation")
+    public ReservationDTO reservationDTO() {
+        return new ReservationDTO();
+    }
+	@GetMapping
+    public String displayDashboard(Model model){
+		String user= returnUsername();
+        model.addAttribute("userDetails", user);
+        return "user/dashboard";
+    }
+	@GetMapping("/find-bus")
+    public String displayFindBus(Model model){
+		String user= returnUsername();
+        model.addAttribute("userDetails", user);
+        return "user/findBus";
+    }
+	@PostMapping
+	public String filterBusData( @ModelAttribute("reservation") ReservationDTO reservationDTO , Model model) {
+		List<BusData> busData = busDataRepository.findByToFromAndDate(reservationDTO.getTo(), reservationDTO.getFrom(), reservationDTO.getFilterDate());
+			
+		if(busData.isEmpty()) {
+			busData = null;
+		}
+		String user = returnUsername();
+        model.addAttribute("userDetails", user);
+		
+		model.addAttribute("busData",busData);
+		model.addAttribute("reservation", reservationDTO);
+	    return "user/findBus";
+	}
+	@GetMapping("/book/{id}")
+	public String bookPage(@PathVariable int id,Model model) {
+		Optional<BusData> busdata = busDataRepository.findById(id);
+		BookingsDTO bks = ObjectCreationHelper.createBookingsDTO(busdata.get());
+		
+		String user = returnUsername();
+        model.addAttribute("userDetails", user);
+         
+		model.addAttribute("record", bks);
+	return "user/book";	
+	}
+	
+	@PostMapping("/booking")
+	public String finalBooking(@ModelAttribute("record") BookingsDTO bookingDTO,Model model) {
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+        UserDetails user = (UserDetails) securityContext.getAuthentication().getPrincipal();
+		Bookings booking = userService.updateBookings(bookingDTO,user);
+		model.addAttribute("record", new BookingsDTO());
+		return "redirect:/myBooking?success";	
+	}
+	
+	private String returnUsername() {
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+        UserDetails user = (UserDetails) securityContext.getAuthentication().getPrincipal();
+		User users = userRepository.findByEmail(user.getUsername());
+		return users.getName();
+	}
+	
+	@GetMapping("/profile")
+	public String userProfile(Model model, Principal principal) {
+	    // Get the currently authenticated user's username (email)
+	    String username = principal.getName();
+	    String user= returnUsername();
+        model.addAttribute("userDetails", user);
+	    // Fetch user data from the service based on the username
+	    User user1 = userService.getUserByEmail(username);
+
+	    if (user1 != null) {
+	        // Add the user object to the model so that it can be accessed in the Thymeleaf template
+	        model.addAttribute("user", user1);
+	        return "user/profile";
+	    } else {
+	        // Handle the case where the user is not found
+	        return "redirect:/error"; // Redirect to an error page
+	    }
+	}
+	// Display user profile editing form
+    @GetMapping("/profile/edit")
+    public String editUserProfileForm(Model model, Authentication authentication) {
+        // Get the currently authenticated user's email
+        String email = authentication.getName();
+        String user= returnUsername();
+        model.addAttribute("userDetails", user);
+        // Fetch user data from the service based on the email
+        User user1 = userService.getUserByEmail(email);
+
+        if (user1 != null) {
+            // Add the user object to the model so that it can be accessed in the edit form
+            model.addAttribute("user", user1);
+            return "user/editProfile"; // Thymeleaf template for editing user profile
+        } else {
+            // Handle the case where the user is not found
+            // You can redirect to an error page or handle it as needed
+            return "redirect:/error"; // Redirect to an error page
+        }
+    }
+
+    // Handle user profile editing form submission
+    @PostMapping("/profile/edit")
+    public String editUserProfile(@ModelAttribute User editedUser, Authentication authentication,Model model) {
+        // Get the currently authenticated user's email
+        String email = authentication.getName();
+        String user= returnUsername();
+        model.addAttribute("userDetails", user);
+        // Fetch user data from the service based on the email
+        User user1 = userService.getUserByEmail(email);
+
+        if (user1 != null) {
+            // Update the user's profile with the edited information
+            user1.setFullName(editedUser.getFullName());
+            user1.setDateOfBirth(editedUser.getDateOfBirth());
+            user1.setAddress(editedUser.getAddress());
+
+            // Save the updated user profile using the userService
+            userService.updateProfile(user1);
+
+            return "redirect:/dashboard/profile"; // Redirect back to the user profile page
+        }
+		return email; 
+    }
+}

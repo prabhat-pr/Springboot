@@ -1,0 +1,18 @@
+package com.system.toursandtravelmanagement.service;
+import java.util.List;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import com.system.toursandtravelmanagement.model.User;
+
+public interface UserServices {
+    void updateResetPasswordToken(String token, String email) throws UsernameNotFoundException;
+    User getByResetPasswordToken(String token);
+    void updatePassword(User user, String newPassword);
+    User changePassword(String username, String newPassword);
+    
+    List<User> getAllUsers();
+    User getUserByEmail(String username);
+    User saveUser(User user);
+    void deleteUser(Long id);
+}

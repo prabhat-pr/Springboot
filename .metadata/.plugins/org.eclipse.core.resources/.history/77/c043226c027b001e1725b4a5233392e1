@@ -1,0 +1,43 @@
+package com.system.toursandtravelmanagement.Controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.system.toursandtravelmanagement.DTO.UserLoginDTO;
+
+import com.system.toursandtravelmanagement.service.DefaultUserService;
+
+@Controller
+public class LoginController {
+    @Autowired
+    private DefaultUserService userService;
+
+    @ModelAttribute("user")
+    public UserLoginDTO userLoginDTO() {
+        return new UserLoginDTO();
+    }
+
+    @GetMapping("/login")
+	public String login() {
+		return "common/login";
+	}
+
+    @PostMapping("/login")
+    public String loginUser(@ModelAttribute("user") UserLoginDTO userLoginDTO, BindingResult bindingResult) {
+        UserDetails user = userService.loadUserByUsername(userLoginDTO.getUsername());
+        if (user == null || !user.getPassword().equals(userLoginDTO.getPassword())) {
+            bindingResult.rejectValue("username", "error", "Invalid email or password");
+            return "common/login"; // Return to login page with error message
+        }
+        // Successful login logic here
+        return "redirect:/home"; // Redirect to home page after successful login
+    }
+}

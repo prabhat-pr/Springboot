@@ -1,0 +1,44 @@
+package com.system.toursandtravelmanagement.Controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.system.toursandtravelmanagement.service.UserServices;
+
+@Controller
+@RequestMapping("/change-password")
+public class ChangePasswordController {
+
+    @Autowired
+    private UserServices userService;
+
+    @GetMapping
+    public String showChangePasswordForm() {
+        return "changePassword";
+    }
+
+    @PostMapping
+    public String changePassword(@RequestParam("username") String username, 
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 RedirectAttributes redirectAttributes) {
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("passwordMismatch", true);
+            return "redirect:/change-password";
+        }
+        
+        try {
+            userService.changePassword(username, newPassword);
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to change password! Please enter your registered email id.");
+        }
+        
+        return "redirect:/change-password";
+    }
+}

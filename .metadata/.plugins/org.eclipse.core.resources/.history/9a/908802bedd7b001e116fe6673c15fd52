@@ -1,0 +1,24 @@
+@charset "ISO-8859-1";
+body{
+	background-color: seashell;
+}
+		.navbar {
+			background-color: aliceblue;
+		}
+
+		.navbar-brand, .navbar-nav .nav-link {
+			color: #ffffff;
+		}
+
+		.navbar-brand:hover, .navbar-nav .nav-link:hover {
+			color: #ffffff;
+		}
+
+		.user-greeting {
+			color: #ffffff;
+		}
+
+		.navbar-toggler-icon {
+			background-color: #ffffff;
+		}
+		

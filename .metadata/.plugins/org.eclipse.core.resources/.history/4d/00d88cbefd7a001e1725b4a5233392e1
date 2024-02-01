@@ -1,0 +1,66 @@
+package com.system.toursandtravelmanagement.Controller;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.system.toursandtravelmanagement.DTO.UserLoginDTO;
+
+import com.system.toursandtravelmanagement.service.DefaultUserService;
+
+@Controller
+public class LoginController {
+    @Autowired
+    private DefaultUserService userService;
+
+    @GetMapping("/login")
+    public String login(@RequestParam(value = "error", defaultValue = "false") boolean loginError, Model model) {
+        if (loginError) {
+            model.addAttribute("error", "Invalid Email or Password. Please try again.");
+        }
+        model.addAttribute("user", new UserLoginDTO()); // add an empty UserLoginDTO object to the model
+        return "common/login";
+    }
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @PostMapping("/login")
+    public String loginUser(@Valid @ModelAttribute("user") UserLoginDTO userLoginDTO, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "common/login"; // Return to the login page if there are validation errors
+        }
+
+        // Perform the login logic
+        UserDetails userDetails;
+        try {
+            userDetails = userService.loadUserByUsername(userLoginDTO.getUsername());
+        } catch (UsernameNotFoundException e) {
+            // If the username is not found, set an error message and return to the login page
+            model.addAttribute("error", "Invalid Email or Password. Please try again.");
+            return "common/login";
+        }
+
+        // Compare the entered password with the password from UserDetails
+        if (passwordEncoder.matches(userLoginDTO.getPassword(), userDetails.getPassword())) {
+            // If passwords match, the login is successful
+            // You can perform additional actions here, such as setting up the session or authentication token
+
+            // Redirect to a success page
+            return "redirect:/dashboard";
+        } else {
+            // If passwords do not match, set an error message and return to the login page
+            model.addAttribute("error", "Invalid Email or Password. Please try again.");
+            return "common/login";
+        }
+    }
+}

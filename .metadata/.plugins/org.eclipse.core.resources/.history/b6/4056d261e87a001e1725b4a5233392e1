@@ -1,0 +1,101 @@
+package com.system.toursandtravelmanagement.service;
+import java.util.List;
+import java.util.Optional;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.system.toursandtravelmanagement.model.User;
+import com.system.toursandtravelmanagement.repository.UserRepository;
+@Service
+@Transactional
+public class UserServiceImpl implements UserServices {
+	@Autowired
+    private UserRepository userRepo;
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder ;
+ 
+    public void updateResetPasswordToken(String token, String email) throws UsernameNotFoundException {
+        User user = userRepo.findByEmail(email);
+        if (user != null) {
+        	user.setResetPasswordToken(token);
+            userRepo.save(user);
+        } else {
+            throw new UsernameNotFoundException("Could not find any user with the email " + email);
+        }
+    }
+     
+    public User getByResetPasswordToken(String token) {
+        return userRepo.findByResetPasswordToken(token);
+    }
+     
+    public void updatePassword(User user, String newPassword) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+         
+        user.setResetPasswordToken(null);
+        userRepo.save(user);
+    }   
+    
+    @Transactional
+    public User changePassword(String username, String newPassword) {
+        // Retrieve the user by username (you might want to add error handling)
+        User user = userRepo.findByEmail(username);
+        if (user != null) {
+            // User exists, proceed with password change
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepo.save(user);
+        } else {
+            // User does not exist, handle this case (e.g., display an error message)
+        }
+        return userRepo.save(user);
+    }
+    
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        Optional<User> userOptional = userRepo.findById(id);
+        return userOptional.orElse(null);
+    }
+
+    @Override
+    public User createUser(User user) {
+        // Implement validation logic if needed before saving the user
+        return userRepo.save(user);
+    }
+
+    @Override
+    public User updateUser(Long id, User user) {
+        if (userRepo.existsById(id)) {
+            user.setId(id);
+            return userRepo.save(user);
+        }
+        return null; // User with the given ID not found
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        userRepo.deleteById(id);
+    }
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepo.findByEmail(email);
+    }
+}
+}

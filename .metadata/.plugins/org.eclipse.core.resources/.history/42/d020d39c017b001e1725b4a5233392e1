@@ -1,0 +1,52 @@
+package com.system.toursandtravelmanagement.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.system.toursandtravelmanagement.DTO.UserLoginDTO;
+import com.system.toursandtravelmanagement.model.User;
+import com.system.toursandtravelmanagement.repository.UserRepository;
+
+//...
+
+public class DefaultUserServices implements UserDetailsService {
+
+ @Autowired
+ private UserRepository userRepository;
+
+ @Autowired
+ private PasswordEncoder passwordEncoder;
+
+ // ...
+
+ @Override
+ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+     User user = userRepository.findByEmail(username);
+     if (user == null) {
+         throw new UsernameNotFoundException("User not found with email: " + username);
+     }
+
+     // Compare encoded password
+     try {
+		try {
+			if (!passwordEncoder.matches(UserLoginDTO.getPassword(), user.getPassword())) {
+			     throw new BadCredentialsException("Incorrect password");
+			 }
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
+     // Create UserDetails object and return
+     // ...
+ }
+}
+

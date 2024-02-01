@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+<meta charset="ISO-8859-1">
+<title>Hello</title>
+</head>
+<body>
+
+<h1  th:inline="text">Hello welcome <span th:remove="tag" sec:authentication="name">CDAC</span>
+</h1>
+<form th:action="@{/logout}" th:method="post">
+<input type="submit" value="Sign out"/>
+</form>
+</body>
+</html>
